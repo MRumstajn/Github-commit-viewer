@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">GitHub commit viewer</string>
+    <string name="github_repo_name_prompt">Github repo name</string>
+    <string name="github_repo_owner_prompt">Github repo owner</string>
+    <string name="repo_lookup_button">Fetch</string>
+</resources>
