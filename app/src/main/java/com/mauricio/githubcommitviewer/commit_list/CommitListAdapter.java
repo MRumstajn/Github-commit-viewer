@@ -38,7 +38,7 @@ public class CommitListAdapter extends RecyclerView.Adapter<CommitViewHolder> {
 
         holder.setDescription(commit.getMessage());
         holder.setAuthor(commit.getAuthor().getName());
-        holder.setHash(commitObj.getSha());
+        holder.setHash(commitObj.getSha().substring(0, 10));
     }
 
     @Override
