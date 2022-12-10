@@ -7,6 +7,7 @@ public class Commit {
     private String message;
     private Author author;
     private Tree tree;
+    private Verification verification;
 
     public Commit(){}
 
@@ -32,5 +33,13 @@ public class Commit {
 
     public Tree getTree() {
         return tree;
+    }
+
+    public void setVerification(Verification verification) {
+        this.verification = verification;
+    }
+
+    public Verification getVerification() {
+        return verification;
     }
 }
