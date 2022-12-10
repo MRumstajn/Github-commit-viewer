@@ -1,6 +1,7 @@
 package com.mauricio.githubcommitviewer.commit_list;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mauricio.githubcommitviewer.R;
+import com.mauricio.githubcommitviewer.commit_details.CommitDetailsActivity;
 import com.mauricio.githubcommitviewer.model.api_response.Commit;
 import com.mauricio.githubcommitviewer.model.api_response.CommitObject;
 
@@ -17,6 +19,7 @@ import java.util.List;
 
 public class CommitListAdapter extends RecyclerView.Adapter<CommitViewHolder> {
     private List<CommitObject> commitObjects;
+    private IListItemClickListener itemClickListener;
 
     public CommitListAdapter(){
         commitObjects = new ArrayList<>();
@@ -39,6 +42,9 @@ public class CommitListAdapter extends RecyclerView.Adapter<CommitViewHolder> {
         holder.setDescription(commit.getMessage());
         holder.setAuthor(commit.getAuthor().getName());
         holder.setHash(commitObj.getSha().substring(0, 10));
+        holder.setClickListener(() -> {
+            itemClickListener.onListItemClicked(position);
+        });
     }
 
     @Override
@@ -55,5 +61,17 @@ public class CommitListAdapter extends RecyclerView.Adapter<CommitViewHolder> {
     public void setCommitObjects(List<CommitObject> commitObjects) {
         this.commitObjects = commitObjects;
         notifyDataSetChanged();
+    }
+
+    public List<CommitObject> getCommitObjects() {
+        return commitObjects;
+    }
+
+    public CommitObject getCommitObjetAt(int position){
+        return commitObjects.get(position);
+    }
+
+    public void setItemClickListener(IListItemClickListener itemClickListener) {
+        this.itemClickListener = itemClickListener;
     }
 }

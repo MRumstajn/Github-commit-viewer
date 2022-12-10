@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mauricio.githubcommitviewer.R;
 import com.mauricio.githubcommitviewer.Util;
+import com.mauricio.githubcommitviewer.commit_details.CommitDetailsActivity;
 import com.mauricio.githubcommitviewer.model.api_response.Commit;
 import com.mauricio.githubcommitviewer.model.api_response.CommitObject;
 
@@ -48,6 +49,9 @@ public class CommitListActivity extends AppCompatActivity {
 
     private void initComponents(){
         commitListAdapter = new CommitListAdapter();
+        commitListAdapter.setItemClickListener(position -> {
+                startDetailsActivityFor(commitListAdapter.getCommitObjetAt(position));
+        });
 
         commitList = findViewById(R.id.commits_recycler_view);
         commitList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -59,6 +63,17 @@ public class CommitListActivity extends AppCompatActivity {
             commitListAdapter.setCommitObjects(commitObjs);
         } else {
             Util.makeToast("No commits in this repository", getApplicationContext());
+        }
+    }
+
+    private void startDetailsActivityFor(CommitObject commitObject){
+        try {
+            Intent intent = new Intent(this, CommitDetailsActivity.class);
+            intent.putExtra("commit_obj", mapper.writeValueAsString(commitObject));
+            startActivity(intent);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            Util.makeToast("Could not show details for that commit", getApplicationContext());
         }
     }
 }

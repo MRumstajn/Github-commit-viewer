@@ -17,11 +17,16 @@ public class CommitViewHolder extends RecyclerView.ViewHolder {
     private TextView commitDescription;
     private TextView commitAuthor;
     private TextView commitHash;
+    private ICommitViewClickListener clickListener;
 
     public CommitViewHolder(@NonNull View itemView) {
         super(itemView);
 
         initComponents(itemView);
+
+        itemView.setOnClickListener((view) -> {
+            clickListener.onCommitViewClicked();
+        });
     }
 
     private void initComponents(View itemView){
@@ -40,5 +45,9 @@ public class CommitViewHolder extends RecyclerView.ViewHolder {
 
     public void setHash(String hash){
         commitHash.setText(Util.shrinkString(hash, MAX_SHA_CHARS));
+    }
+
+    public void setClickListener(ICommitViewClickListener clickListener) {
+        this.clickListener = clickListener;
     }
 }
