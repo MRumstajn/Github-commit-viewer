@@ -11,4 +11,5 @@
     <string name="verified_label">Verified:</string>
     <string name="files_label">Files</string>
     <string name="details_label">Details</string>
+    <string name="current_file_label">Current file:</string>
 </resources>

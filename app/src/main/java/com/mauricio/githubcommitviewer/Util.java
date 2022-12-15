@@ -14,4 +14,8 @@ public class Util {
         }
         return string.substring(0, maxChars - 3) + "...";
     }
+
+    public static int clampValueToMax(int value, int max){
+        return value <= max ? value : max;
+    }
 }
