@@ -40,7 +40,7 @@ public class FetchTreeObjectTask implements Runnable{
             listener.onFetchedTreeObject(treeObject);
         } catch (IOException e) {
             e.printStackTrace();
-            listener.onFetchTreeObjectError(e.getMessage());
+            listener.onFetchTreeObjectError(e);
         }
     }
 

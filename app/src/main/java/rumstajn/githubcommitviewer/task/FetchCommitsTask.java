@@ -40,7 +40,7 @@ public class FetchCommitsTask implements Runnable {
             listener.onFetchedCommits(commitObjects);
         } catch (IOException e) {
             e.printStackTrace();
-            listener.onFetchCommitsError(e.getMessage());
+            listener.onFetchCommitsError(e);
         }
     }
 

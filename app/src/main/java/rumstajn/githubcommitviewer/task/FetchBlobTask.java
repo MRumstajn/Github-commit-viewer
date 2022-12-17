@@ -40,7 +40,7 @@ public class FetchBlobTask implements Runnable{
             listener.onFetchedBlob(blobObject);
         } catch (IOException e) {
             e.printStackTrace();
-            listener.onFetchBlobError(e.getMessage());
+            listener.onFetchBlobError(e);
         }
     }
 

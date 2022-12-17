@@ -152,7 +152,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFetchTreeObjectError(String msg) {
+    public void onFetchTreeObjectError(Exception e) {
         runOnUiThread(() -> {
             Util.makeToast("Failed to fetch files", getApplicationContext());
         });
@@ -192,7 +192,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFetchBlobError(String msg) {
+    public void onFetchBlobError(Exception e) {
         runOnUiThread(() -> {
             Util.makeToast("Failed to fetch some files", getApplicationContext());
         });

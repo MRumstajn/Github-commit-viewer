@@ -11,6 +11,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mauricio.githubcommitviewer.R;
 
+import java.io.FileNotFoundException;
+
 import rumstajn.githubcommitviewer.commit_list.CommitListActivity;
 import rumstajn.githubcommitviewer.model.api_response.CommitObject;
 import rumstajn.githubcommitviewer.task.FetchCommitsTask;
@@ -69,9 +71,13 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
     }
 
     @Override
-    public void onFetchCommitsError(String msg) {
+    public void onFetchCommitsError(Exception e) {
         runOnUiThread(() -> {
-            Util.makeToast("Error fetching commits", getApplicationContext());
+            if (e instanceof FileNotFoundException){
+                Util.makeToast("Repository not found or rate limit reached", getApplicationContext());
+            } else {
+                Util.makeToast("Error fetching commits", getApplicationContext());
+            }
         });
     }
 }
