@@ -10,9 +10,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,10 +33,12 @@ import com.mauricio.githubcommitviewer.task.TaskManager;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CommitDetailsActivity extends AppCompatActivity
-        implements IFetchTreeObjectTaskListener, AdapterView.OnItemSelectedListener {
+        implements IFetchTreeObjectTaskListener, AdapterView.OnItemSelectedListener, IFetchBlobTaskListener {
     private Button backButton;
     private TextView authorLabel;
     private TextView dateLabel;
@@ -49,6 +49,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     private ArrayAdapter<String> fileSpinnerAdapter;
     private TextView fileContentDisplay;
     private List<CommitFile> commitFiles;
+    private Map<String, String> treeEntryToPathMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     private void initComponents() {
         mapper = new ObjectMapper();
         commitFiles = new ArrayList<>();
+        treeEntryToPathMap = new HashMap<>();
 
         backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener((view) -> {
@@ -106,16 +108,16 @@ public class CommitDetailsActivity extends AppCompatActivity
         verifiedLabel.setText(Boolean.toString(commit.getVerification().isVerified()));
     }
 
-    private void loadTreeObj(CommitObject commitObject){
+    private void loadTreeObj(CommitObject commitObject) {
         FetchTreeObjectTask task = new FetchTreeObjectTask(commitObject.getCommit().getTree().getUrl());
         task.setListener(this);
         TaskManager.getInstance().runTaskLater(task);
     }
 
     /*
-    * commit (tree url) -> tree_obj (entries)(entry_url) -> entry (block/tree url)
-    *
-    * */
+     * commit (tree url) -> tree_obj (entries)(entry_url) -> entry (block/tree url)
+     *
+     * */
 
     private void loadTree(TreeEntry treeEntry) {
         FetchTreeObjectTask task = new FetchTreeObjectTask(treeEntry.getUrl());
@@ -126,34 +128,8 @@ public class CommitDetailsActivity extends AppCompatActivity
     private void loadBlob(TreeEntry treeEntry) {
         String url = treeEntry.getUrl();
         FetchBlobTask task = new FetchBlobTask(url);
-        task.setListener(new IFetchBlobTaskListener() {
-            @Override
-            public void onFetchedBlob(BlobObject blobObject) {
-                String encodedContent = blobObject.getContent();
-                String content = null;
-                if (blobObject.getEncoding().equals(BlobEncoding.BASE64.getName())){
-                    byte[] contentBytes = Base64.decode(encodedContent, Base64.DEFAULT);
-                    content = new String(contentBytes);
-                }
-                if (content == null){
-                    Util.makeToast("Encountered an unsupported file encoding \""
-                            + blobObject.getEncoding() + "\"", getApplicationContext());
-                    return;
-                }
-                CommitFile commitFile = new CommitFile(content, treeEntry.getPath());
-                runOnUiThread(() -> {
-                    commitFiles.add(commitFile);
-                    fileSpinnerAdapter.add(commitFile.getPath());
-                });
-            }
-
-            @Override
-            public void onFetchBlobError(String msg) {
-                runOnUiThread(() -> {
-                    Util.makeToast("Failed to fetch some files", getApplicationContext());
-                });
-            }
-        });
+        task.setListener(this);
+        treeEntryToPathMap.put(treeEntry.getSha(), treeEntry.getPath());
         TaskManager.getInstance().runTaskLater(task);
     }
 
@@ -164,9 +140,9 @@ public class CommitDetailsActivity extends AppCompatActivity
     @Override
     public void onFetchedTreeObject(TreeObject treeObject) {
         treeObject.getTree().forEach(entry -> {
-            if (entry.getType().equals(TreeEntryType.BLOB.getName())){
+            if (entry.getType().equals(TreeEntryType.BLOB.getName())) {
                 loadBlob(entry);
-            } else if (entry.getType().equals(TreeEntryType.TREE.getName())){
+            } else if (entry.getType().equals(TreeEntryType.TREE.getName())) {
                 loadTree(entry);
             }
         });
@@ -187,5 +163,35 @@ public class CommitDetailsActivity extends AppCompatActivity
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
         fileContentDisplay.setText(null);
+    }
+
+    @Override
+    public void onFetchedBlob(BlobObject blobObject) {
+        String encodedContent = blobObject.getContent();
+        String content = null;
+        if (blobObject.getEncoding().equals(BlobEncoding.BASE64.getName())) {
+            byte[] contentBytes = Base64.decode(encodedContent, Base64.DEFAULT);
+            content = new String(contentBytes);
+        }
+        if (content == null) {
+            Util.makeToast("Encountered an unsupported file encoding \""
+                    + blobObject.getEncoding() + "\"", getApplicationContext());
+            return;
+        }
+
+        String path = treeEntryToPathMap.get(blobObject.getSha());
+        assert path != null;
+        CommitFile commitFile = new CommitFile(content, path);
+        runOnUiThread(() -> {
+            commitFiles.add(commitFile);
+            fileSpinnerAdapter.add(path);
+        });
+    }
+
+    @Override
+    public void onFetchBlobError(String msg) {
+        runOnUiThread(() -> {
+            Util.makeToast("Failed to fetch some files", getApplicationContext());
+        });
     }
 }
