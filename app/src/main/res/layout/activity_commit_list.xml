@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".commit_list.CommitListActivity">
+    tools:context="rumstajn.githubcommitviewer.commit_list.CommitListActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/commits_recycler_view"
