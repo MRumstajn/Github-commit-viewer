@@ -19,6 +19,7 @@ import rumstajn.githubcommitviewer.task.TaskManager;
 
 public class MainActivity extends AppCompatActivity implements IFetchCommitTaskListener {
     private ObjectMapper mapper;
+    private String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,18 +30,20 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
 
         EditText repoNameField = findViewById(R.id.github_repo_name_field);
         EditText repoOwnerField = findViewById(R.id.github_repo_owner_field);
+        EditText accessTokenField = findViewById(R.id.github_personal_access_token_field);
         Button repoLookupButton = findViewById(R.id.repo_lookup_button);
 
         repoLookupButton.setOnClickListener((view) -> {
             // validate data
             String repoName = repoNameField.getText().toString().trim();
             String repoOwner = repoOwnerField.getText().toString().trim();
+            String accessToken = accessTokenField.getText().toString().trim();
+            this.accessToken = accessToken.length() > 0 ? accessToken : "";
             if (!repoName.isEmpty() && !repoOwner.isEmpty()){
                 String url = GlobalConfig.API_BASE_URL + GlobalConfig.API_REPOS_ROUTE +
                         "/" + repoOwner + "/" + repoName + GlobalConfig.API_COMMITS_ROUTE;
-                FetchCommitsTask fetchTask = new FetchCommitsTask(url);
+                FetchCommitsTask fetchTask = new FetchCommitsTask(url, accessToken);
                 fetchTask.setListener(this);
-
                 TaskManager.getInstance().runTaskLater(fetchTask);
             } else {
                 Util.makeToast("Repository name and owner fields are required", getApplicationContext());
@@ -54,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
             Intent intent = new Intent(this, CommitListActivity.class);
             intent.putExtra("commit_objects",
                     mapper.writeValueAsString(commitObjects));
+            intent.putExtra("access_token", accessToken);
             startActivity(intent);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

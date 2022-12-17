@@ -12,4 +12,5 @@
     <string name="files_label">Files</string>
     <string name="details_label">Details</string>
     <string name="current_file_label">Current file:</string>
+    <string name="github_personal_access_token_prompt">Github personal access token:</string>
 </resources>

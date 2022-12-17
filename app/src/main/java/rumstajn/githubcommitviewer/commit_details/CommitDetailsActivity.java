@@ -50,6 +50,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     private TextView fileContentDisplay;
     private List<CommitFile> commitFiles;
     private Map<String, String> treeEntryToPathMap;
+    private String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +71,7 @@ public class CommitDetailsActivity extends AppCompatActivity
             exitActivity();
             return;
         }
+        accessToken = intent.getStringExtra("access_token");
 
         setAttributeLabels(commitObj);
         loadTreeObj(commitObj);
@@ -109,7 +111,8 @@ public class CommitDetailsActivity extends AppCompatActivity
     }
 
     private void loadTreeObj(CommitObject commitObject) {
-        FetchTreeObjectTask task = new FetchTreeObjectTask(commitObject.getCommit().getTree().getUrl());
+        FetchTreeObjectTask task = new FetchTreeObjectTask(commitObject.getCommit()
+                .getTree().getUrl(), accessToken);
         task.setListener(this);
         TaskManager.getInstance().runTaskLater(task);
     }
@@ -120,14 +123,14 @@ public class CommitDetailsActivity extends AppCompatActivity
      * */
 
     private void loadTree(TreeEntry treeEntry) {
-        FetchTreeObjectTask task = new FetchTreeObjectTask(treeEntry.getUrl());
+        FetchTreeObjectTask task = new FetchTreeObjectTask(treeEntry.getUrl(), accessToken);
         task.setListener(this);
         TaskManager.getInstance().runTaskLater(task);
     }
 
     private void loadBlob(TreeEntry treeEntry) {
         String url = treeEntry.getUrl();
-        FetchBlobTask task = new FetchBlobTask(url);
+        FetchBlobTask task = new FetchBlobTask(url, accessToken);
         task.setListener(this);
         treeEntryToPathMap.put(treeEntry.getSha(), treeEntry.getPath());
         TaskManager.getInstance().runTaskLater(task);

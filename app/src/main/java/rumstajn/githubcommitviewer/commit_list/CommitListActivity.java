@@ -22,6 +22,7 @@ public class CommitListActivity extends AppCompatActivity {
     private RecyclerView commitList;
     private CommitListAdapter commitListAdapter;
     private ObjectMapper mapper;
+    private String accessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,7 @@ public class CommitListActivity extends AppCompatActivity {
         // get commits fetched by previous activity
         Intent intent = getIntent();
         String rawCommits = intent.getStringExtra("commit_objects");
+        accessToken = intent.getStringExtra("access_token");
         CommitObject[] commitObjects = new CommitObject[0];
         try {
             commitObjects = mapper.readValue(rawCommits, CommitObject[].class);
@@ -69,6 +71,7 @@ public class CommitListActivity extends AppCompatActivity {
         try {
             Intent intent = new Intent(this, CommitDetailsActivity.class);
             intent.putExtra("commit_obj", mapper.writeValueAsString(commitObject));
+            intent.putExtra("access_token", accessToken);
             startActivity(intent);
         } catch (JsonProcessingException e) {
             e.printStackTrace();

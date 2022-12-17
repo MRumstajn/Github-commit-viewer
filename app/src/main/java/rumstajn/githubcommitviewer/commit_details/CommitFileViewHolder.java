@@ -23,10 +23,6 @@ public class CommitFileViewHolder extends RecyclerView.ViewHolder {
 
         path = itemView.findViewById(R.id.file_name_label);
         content = itemView.findViewById(R.id.file_content);
-
-        // FIXME files too far apart and last file not shown fully
-        // MIND THE RATE LIMIT
-        // try to add child views to activity instead of recycler view
     }
 
     public void setPath(String path) {
