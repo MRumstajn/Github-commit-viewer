@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class CommitListActivity extends AppCompatActivity {
     private RecyclerView commitList;
     private CommitListAdapter commitListAdapter;
+    private Button backButton;
     private ObjectMapper mapper;
     private String accessToken;
 
@@ -57,6 +59,8 @@ public class CommitListActivity extends AppCompatActivity {
         commitList = findViewById(R.id.commits_recycler_view);
         commitList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         commitList.setAdapter(commitListAdapter);
+        backButton = findViewById(R.id.commit_list_back_button);
+        backButton.setOnClickListener((view) -> finish());
     }
 
     private void loadCommits(List<CommitObject> commitObjs){

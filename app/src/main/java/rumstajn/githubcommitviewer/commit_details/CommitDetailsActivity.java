@@ -85,7 +85,7 @@ public class CommitDetailsActivity extends AppCompatActivity
         commitFiles = new ArrayList<>();
         treeEntryToPathMap = new HashMap<>();
 
-        backButton = findViewById(R.id.back_button);
+        backButton = findViewById(R.id.commit_details_back_button);
         backButton.setOnClickListener((view) -> {
             exitActivity();
         });
