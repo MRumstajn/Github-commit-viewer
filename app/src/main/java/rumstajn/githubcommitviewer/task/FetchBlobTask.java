@@ -1,15 +1,15 @@
 package rumstajn.githubcommitviewer.task;
 
-import android.util.Log;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rumstajn.githubcommitviewer.Util;
+import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
 import rumstajn.githubcommitviewer.model.api_response.BlobObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 
 public class FetchBlobTask implements Runnable{
     private String url;
@@ -27,18 +27,27 @@ public class FetchBlobTask implements Runnable{
 
     @Override
     public void run() {
+        boolean usingToken = accessToken != null && accessToken.length() > 0;
+
         ObjectMapper mapper = new ObjectMapper();
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod("GET");
-            if (accessToken != null && accessToken.length() > 0){
+            if (usingToken){
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
             }
             connection.connect();
+
+            if (connection.getHeaderField("x-ratelimit-remaining").equals("0")){
+                long remainingMinutes = Util.getRateLimitExpirationTime(connection);
+                listener.onFetchBlobError(new RateLimitExceededException(remainingMinutes));
+                return;
+            }
+
             String response = Util.readHTTPInputStream(connection.getInputStream());
             BlobObject blobObject = mapper.readValue(response, BlobObject.class);
             listener.onFetchedBlob(blobObject);
-        } catch (IOException e) {
+        } catch (IOException | ParseException e) {
             e.printStackTrace();
             listener.onFetchBlobError(e);
         }

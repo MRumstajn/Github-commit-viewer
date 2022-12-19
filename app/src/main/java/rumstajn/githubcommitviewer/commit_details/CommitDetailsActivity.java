@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mauricio.githubcommitviewer.R;
 import rumstajn.githubcommitviewer.Util;
+import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
 import rumstajn.githubcommitviewer.model.api_response.BlobEncoding;
 import rumstajn.githubcommitviewer.model.api_response.BlobObject;
 import rumstajn.githubcommitviewer.model.api_response.Commit;
@@ -51,6 +52,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     private List<CommitFile> commitFiles;
     private Map<String, String> treeEntryToPathMap;
     private String accessToken;
+    private boolean loadingTree;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     }
 
     private void loadTreeObj(CommitObject commitObject) {
+        loadingTree = true;
         FetchTreeObjectTask task = new FetchTreeObjectTask(commitObject.getCommit()
                 .getTree().getUrl(), accessToken);
         task.setListener(this);
@@ -143,6 +146,9 @@ public class CommitDetailsActivity extends AppCompatActivity
     @Override
     public void onFetchedTreeObject(TreeObject treeObject) {
         treeObject.getTree().forEach(entry -> {
+            if (!loadingTree){
+                return;
+            }
             if (entry.getType().equals(TreeEntryType.BLOB.getName())) {
                 loadBlob(entry);
             } else if (entry.getType().equals(TreeEntryType.TREE.getName())) {
@@ -153,6 +159,10 @@ public class CommitDetailsActivity extends AppCompatActivity
 
     @Override
     public void onFetchTreeObjectError(Exception e) {
+        if (e instanceof RateLimitExceededException){
+            loadingTree = false;
+            displayRateLimitErrorMsg((RateLimitExceededException) e);
+        }
         runOnUiThread(() -> {
             Util.makeToast("Failed to fetch files", getApplicationContext());
         });
@@ -193,8 +203,23 @@ public class CommitDetailsActivity extends AppCompatActivity
 
     @Override
     public void onFetchBlobError(Exception e) {
+        if (e instanceof RateLimitExceededException){
+            loadingTree = false;
+            displayRateLimitErrorMsg((RateLimitExceededException) e);
+        } else {
+            runOnUiThread(() -> {
+                Util.makeToast("Failed to fetch some files", getApplicationContext());
+            });
+        }
+    }
+
+    private void displayRateLimitErrorMsg(RateLimitExceededException exception){
         runOnUiThread(() -> {
-            Util.makeToast("Failed to fetch some files", getApplicationContext());
+            long minutes = exception.getMinutesRemaining();
+            String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";
+            Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
+                    " or use an access token if you " +
+                    "haven't supplied one", getApplicationContext());
         });
     }
 }

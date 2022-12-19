@@ -7,6 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.text.ParseException;
+import java.util.Date;
 
 public class Util {
     public static void makeToast(String msg, Context context){
@@ -34,5 +37,18 @@ public class Util {
         }
         reader.close();
         return buff.toString();
+    }
+
+    public static long getRateLimitExpirationTime(HttpURLConnection connection) throws ParseException {
+        String rateLimitResetRaw = connection.getHeaderField("x-ratelimit-reset");
+        if (rateLimitResetRaw == null){
+            return -1;
+        }
+
+        Date expiry = new Date(Long.parseLong(rateLimitResetRaw) * 1000);
+        Date now = new Date();
+
+        long diff = Math.abs(expiry.getTime() - now.getTime());
+        return diff / (60 * 1000) % 60; // minutes
     }
 }

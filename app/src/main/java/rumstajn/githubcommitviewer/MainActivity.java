@@ -14,6 +14,7 @@ import com.mauricio.githubcommitviewer.R;
 import java.io.FileNotFoundException;
 
 import rumstajn.githubcommitviewer.commit_list.CommitListActivity;
+import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
 import rumstajn.githubcommitviewer.model.api_response.CommitObject;
 import rumstajn.githubcommitviewer.task.FetchCommitsTask;
 import rumstajn.githubcommitviewer.task.IFetchCommitTaskListener;
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
             String repoOwner = repoOwnerField.getText().toString().trim();
             String accessToken = accessTokenField.getText().toString().trim();
             this.accessToken = accessToken.length() > 0 ? accessToken : "";
-            if (!repoName.isEmpty() && !repoOwner.isEmpty()){
+            if (!repoName.isEmpty() && !repoOwner.isEmpty()) {
                 String url = GlobalConfig.API_BASE_URL + GlobalConfig.API_REPOS_ROUTE +
                         "/" + repoOwner + "/" + repoName + GlobalConfig.API_COMMITS_ROUTE;
                 FetchCommitsTask fetchTask = new FetchCommitsTask(url, accessToken);
@@ -72,12 +73,24 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
 
     @Override
     public void onFetchCommitsError(Exception e) {
-        runOnUiThread(() -> {
-            if (e instanceof FileNotFoundException){
+        if (e instanceof FileNotFoundException) {
+            runOnUiThread(() -> {
                 Util.makeToast("Repository not found or rate limit reached", getApplicationContext());
-            } else {
+            });
+        } else if (e instanceof RateLimitExceededException) {
+            RateLimitExceededException exception = (RateLimitExceededException) e;
+            runOnUiThread(() -> {
+                long minutes = exception.getMinutesRemaining();
+                String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";
+                Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
+                        " or use an access token if you " +
+                        "haven't supplied one", getApplicationContext());
+            });
+        } else {
+            runOnUiThread(() -> {
                 Util.makeToast("Error fetching commits", getApplicationContext());
-            }
-        });
+            });
+        }
+
     }
 }
