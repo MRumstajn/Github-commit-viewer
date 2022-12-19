@@ -10,8 +10,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.mauricio.githubcommitviewer.R;
 
-import rumstajn.githubcommitviewer.model.api_response.Commit;
-import rumstajn.githubcommitviewer.model.api_response.CommitObject;
+import rumstajn.githubcommitviewer.model.api_response.commit.Commit;
+import rumstajn.githubcommitviewer.model.api_response.commit.CommitObject;
 
 import java.util.ArrayList;
 import java.util.List;

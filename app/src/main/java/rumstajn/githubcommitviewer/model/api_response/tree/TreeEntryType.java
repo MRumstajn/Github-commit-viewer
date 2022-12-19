@@ -1,4 +1,4 @@
-package rumstajn.githubcommitviewer.model.api_response;
+package rumstajn.githubcommitviewer.model.api_response.tree;
 
 public enum TreeEntryType {
     BLOB("blob"),

@@ -1,4 +1,4 @@
-package rumstajn.githubcommitviewer.model.api_response;
+package rumstajn.githubcommitviewer.model.api_response.blob;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

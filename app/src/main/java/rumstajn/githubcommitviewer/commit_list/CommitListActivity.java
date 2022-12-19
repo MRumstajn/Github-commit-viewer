@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mauricio.githubcommitviewer.R;
 import rumstajn.githubcommitviewer.Util;
 import rumstajn.githubcommitviewer.commit_details.CommitDetailsActivity;
-import rumstajn.githubcommitviewer.model.api_response.CommitObject;
+import rumstajn.githubcommitviewer.model.api_response.commit.CommitObject;
 
 import java.util.Arrays;
 import java.util.List;

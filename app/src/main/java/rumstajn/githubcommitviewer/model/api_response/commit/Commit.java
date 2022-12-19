@@ -1,6 +1,8 @@
-package rumstajn.githubcommitviewer.model.api_response;
+package rumstajn.githubcommitviewer.model.api_response.commit;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import rumstajn.githubcommitviewer.model.api_response.tree.Tree;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Commit {

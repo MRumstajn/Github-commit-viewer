@@ -1,4 +1,4 @@
-package rumstajn.githubcommitviewer.model.api_response;
+package rumstajn.githubcommitviewer.model.api_response.blob;
 
 public enum BlobEncoding {
     BASE64("base64");

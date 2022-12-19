@@ -1,6 +1,6 @@
 package rumstajn.githubcommitviewer.task;
 
-import rumstajn.githubcommitviewer.model.api_response.TreeObject;
+import rumstajn.githubcommitviewer.model.api_response.tree.TreeObject;
 
 public interface IFetchTreeObjectTaskListener {
     void onFetchedTreeObject(TreeObject treeObject);

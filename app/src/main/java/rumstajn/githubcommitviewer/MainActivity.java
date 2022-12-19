@@ -15,7 +15,7 @@ import java.io.FileNotFoundException;
 
 import rumstajn.githubcommitviewer.commit_list.CommitListActivity;
 import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
-import rumstajn.githubcommitviewer.model.api_response.CommitObject;
+import rumstajn.githubcommitviewer.model.api_response.commit.CommitObject;
 import rumstajn.githubcommitviewer.task.FetchCommitsTask;
 import rumstajn.githubcommitviewer.task.IFetchCommitTaskListener;
 import rumstajn.githubcommitviewer.task.TaskManager;

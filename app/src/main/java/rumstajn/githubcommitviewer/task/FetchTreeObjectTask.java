@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rumstajn.githubcommitviewer.Util;
 import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
-import rumstajn.githubcommitviewer.model.api_response.TreeObject;
+import rumstajn.githubcommitviewer.model.api_response.tree.TreeObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
