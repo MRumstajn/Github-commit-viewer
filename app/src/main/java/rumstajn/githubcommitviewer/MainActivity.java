@@ -14,6 +14,7 @@ import com.mauricio.githubcommitviewer.R;
 import java.io.FileNotFoundException;
 
 import rumstajn.githubcommitviewer.commit_list.CommitListActivity;
+import rumstajn.githubcommitviewer.exception.InvalidAccessTokenException;
 import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
 import rumstajn.githubcommitviewer.model.api_response.commit.CommitObject;
 import rumstajn.githubcommitviewer.task.FetchCommitsTask;
@@ -85,6 +86,10 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
                 Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
                         " or use an access token if you " +
                         "haven't supplied one", getApplicationContext());
+            });
+        } else if (e instanceof InvalidAccessTokenException) {
+            runOnUiThread(() -> {
+                Util.makeToast("Invalid or expired access token", getApplicationContext());
             });
         } else {
             runOnUiThread(() -> {

@@ -3,6 +3,7 @@ package rumstajn.githubcommitviewer.task;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import rumstajn.githubcommitviewer.Util;
+import rumstajn.githubcommitviewer.exception.InvalidAccessTokenException;
 import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
 import rumstajn.githubcommitviewer.model.api_response.tree.TreeObject;
 
@@ -37,6 +38,11 @@ public class FetchTreeObjectTask implements Runnable{
                 connection.setRequestProperty("Authorization", "Bearer " + accessToken);
             }
             connection.connect();
+
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED){
+                listener.onFetchTreeObjectError(new InvalidAccessTokenException());
+                return;
+            }
 
             if (connection.getHeaderField("x-ratelimit-remaining").equals("0")){
                 long remainingMinutes = Util.getRateLimitExpirationTime(connection);
