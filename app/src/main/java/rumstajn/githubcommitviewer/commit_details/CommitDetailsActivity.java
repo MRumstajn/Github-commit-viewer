@@ -53,6 +53,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     private Map<String, String> treeEntryToPathMap;
     private String accessToken;
     private boolean loadingTree;
+    private boolean wasLoadingTree;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +78,28 @@ public class CommitDetailsActivity extends AppCompatActivity
 
         setAttributeLabels(commitObj);
         loadTreeObj(commitObj);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        //TaskManager.getInstance().cancelTask(treeLoadingTaskID);
+        wasLoadingTree = loadingTree;
+        loadingTree = false;
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        wasLoadingTree = loadingTree;
+        loadingTree = false;
+        //TaskManager.getInstance().cancelTask(treeLoadingTaskID);
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        loadingTree = wasLoadingTree;
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -114,6 +137,7 @@ public class CommitDetailsActivity extends AppCompatActivity
 
     private void loadTreeObj(CommitObject commitObject) {
         loadingTree = true;
+        wasLoadingTree = true;
         FetchTreeObjectTask task = new FetchTreeObjectTask(commitObject.getCommit()
                 .getTree().getUrl(), accessToken);
         task.setListener(this);
