@@ -74,11 +74,7 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
 
     @Override
     public void onFetchCommitsError(Exception e) {
-        if (e instanceof FileNotFoundException) {
-            runOnUiThread(() -> {
-                Util.makeToast("Repository not found or rate limit reached", getApplicationContext());
-            });
-        } else if (e instanceof RateLimitExceededException) {
+        if (e instanceof RateLimitExceededException) {
             RateLimitExceededException exception = (RateLimitExceededException) e;
             runOnUiThread(() -> {
                 long minutes = exception.getMinutesRemaining();
@@ -86,6 +82,11 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
                 Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
                         " or use an access token if you " +
                         "haven't supplied one", getApplicationContext());
+            });
+        } else if (e instanceof FileNotFoundException) {
+            runOnUiThread(() -> {
+                Util.makeToast("Repository not found, did you type it out correctly?",
+                        getApplicationContext());
             });
         } else if (e instanceof InvalidAccessTokenException) {
             runOnUiThread(() -> {
