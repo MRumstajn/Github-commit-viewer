@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mauricio.githubcommitviewer.R;
+
 import rumstajn.githubcommitviewer.Util;
 import rumstajn.githubcommitviewer.exception.RateLimitExceededException;
 import rumstajn.githubcommitviewer.model.api_response.blob.BlobEncoding;
@@ -53,7 +54,7 @@ public class CommitDetailsActivity extends AppCompatActivity
     private Map<String, String> treeEntryToPathMap;
     private String accessToken;
     private boolean loadingTree;
-    private boolean wasLoadingTree;
+    private List<TreeEntry> treeEntryQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,33 +81,12 @@ public class CommitDetailsActivity extends AppCompatActivity
         loadTreeObj(commitObj);
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //TaskManager.getInstance().cancelTask(treeLoadingTaskID);
-        wasLoadingTree = loadingTree;
-        loadingTree = false;
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        wasLoadingTree = loadingTree;
-        loadingTree = false;
-        //TaskManager.getInstance().cancelTask(treeLoadingTaskID);
-    }
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        loadingTree = wasLoadingTree;
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     private void initComponents() {
         mapper = new ObjectMapper();
         commitFiles = new ArrayList<>();
         treeEntryToPathMap = new HashMap<>();
+        treeEntryQueue = new ArrayList<>();
 
         backButton = findViewById(R.id.commit_details_back_button);
         backButton.setOnClickListener((view) -> {
@@ -137,7 +117,6 @@ public class CommitDetailsActivity extends AppCompatActivity
 
     private void loadTreeObj(CommitObject commitObject) {
         loadingTree = true;
-        wasLoadingTree = true;
         FetchTreeObjectTask task = new FetchTreeObjectTask(commitObject.getCommit()
                 .getTree().getUrl(), accessToken);
         task.setListener(this);
@@ -150,6 +129,7 @@ public class CommitDetailsActivity extends AppCompatActivity
      * */
 
     private void loadTree(TreeEntry treeEntry) {
+        loadingTree = true;
         FetchTreeObjectTask task = new FetchTreeObjectTask(treeEntry.getUrl(), accessToken);
         task.setListener(this);
         TaskManager.getInstance().runTaskLater(task);
@@ -169,22 +149,25 @@ public class CommitDetailsActivity extends AppCompatActivity
 
     @Override
     public void onFetchedTreeObject(TreeObject treeObject) {
-        treeObject.getTree().forEach(entry -> {
-            if (!loadingTree){
-                return;
-            }
+        treeEntryQueue.addAll(treeObject.getTree());
+        loadNextTreeEntry();
+    }
+
+    private void loadNextTreeEntry(){
+        if (treeEntryQueue.size() > 0 && loadingTree){
+            TreeEntry entry = treeEntryQueue.remove(0);
             if (entry.getType().equals(TreeEntryType.BLOB.getName())) {
                 loadBlob(entry);
             } else if (entry.getType().equals(TreeEntryType.TREE.getName())) {
                 loadTree(entry);
             }
-        });
+        }
     }
 
     @Override
     public void onFetchTreeObjectError(Exception e) {
-        if (e instanceof RateLimitExceededException){
-            loadingTree = false;
+        loadingTree = false;
+        if (e instanceof RateLimitExceededException) {
             displayRateLimitErrorMsg((RateLimitExceededException) e);
         }
         runOnUiThread(() -> {
@@ -223,21 +206,24 @@ public class CommitDetailsActivity extends AppCompatActivity
             commitFiles.add(commitFile);
             fileSpinnerAdapter.add(path);
         });
+        loadNextTreeEntry();
     }
+
 
     @Override
     public void onFetchBlobError(Exception e) {
-        if (e instanceof RateLimitExceededException){
-            loadingTree = false;
+        loadingTree = false;
+        if (e instanceof RateLimitExceededException) {
             displayRateLimitErrorMsg((RateLimitExceededException) e);
         } else {
             runOnUiThread(() -> {
                 Util.makeToast("Failed to fetch some files", getApplicationContext());
             });
         }
+
     }
 
-    private void displayRateLimitErrorMsg(RateLimitExceededException exception){
+    private void displayRateLimitErrorMsg(RateLimitExceededException exception) {
         runOnUiThread(() -> {
             long minutes = exception.getMinutesRemaining();
             String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";

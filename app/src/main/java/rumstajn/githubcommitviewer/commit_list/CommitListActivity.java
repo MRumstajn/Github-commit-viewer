@@ -47,7 +47,9 @@ public class CommitListActivity extends AppCompatActivity {
             Util.makeToast("Failed to load commit data", getApplicationContext());
             finish();
         }
-        loadCommits(Arrays.stream(commitObjects).collect(Collectors.toList()));
+        if (commitObjects.length > 0) {
+            loadCommits(Arrays.stream(commitObjects).collect(Collectors.toList()));
+        }
     }
 
     private void initComponents(){
