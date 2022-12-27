@@ -49,9 +49,9 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
                 FetchCommitsTask fetchTask = new FetchCommitsTask(url, accessToken);
                 fetchTask.setListener(this);
                 TaskManager.getInstance().runTaskLater(fetchTask);
-                runOnUiThread(() -> Util.makeToast("Fetching...", getApplicationContext()));
+                Util.makeToast("Fetching...", this);
             } else {
-                Util.makeToast("Repository name and owner fields are required", getApplicationContext());
+                Util.makeToast("Repository name and owner fields are required", this);
             }
         });
     }
@@ -66,10 +66,7 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
             startActivity(intent);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            runOnUiThread(() -> {
-                Util.makeToast("Error occurred while relaying data to the next activity",
-                        getApplicationContext());
-            });
+            Util.makeToast("Error occurred while relaying data to the next activity", this);
         }
     }
 
@@ -77,26 +74,20 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
     public void onFetchCommitsError(Exception e) {
         if (e instanceof RateLimitExceededException) {
             RateLimitExceededException exception = (RateLimitExceededException) e;
-            runOnUiThread(() -> {
-                long minutes = exception.getMinutesRemaining();
-                String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";
-                Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
-                        " or use an access token if you " +
-                        "haven't supplied one", getApplicationContext());
-            });
+
+            long minutes = exception.getMinutesRemaining();
+            String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";
+            Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
+                    " or use an access token if you " +
+                    "haven't supplied one", this);
+
         } else if (e instanceof FileNotFoundException) {
-            runOnUiThread(() -> {
-                Util.makeToast("Repository not found, did you type it out correctly?",
-                        getApplicationContext());
-            });
+            Util.makeToast("Repository not found, did you type it out correctly?",
+                    this);
         } else if (e instanceof InvalidAccessTokenException) {
-            runOnUiThread(() -> {
-                Util.makeToast("Invalid or expired access token", getApplicationContext());
-            });
+            Util.makeToast("Invalid or expired access token", this);
         } else {
-            runOnUiThread(() -> {
-                Util.makeToast("Error fetching commits", getApplicationContext());
-            });
+            Util.makeToast("Error fetching commits", this);
         }
 
     }

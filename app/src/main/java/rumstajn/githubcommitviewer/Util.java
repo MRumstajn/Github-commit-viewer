@@ -1,5 +1,6 @@
 package rumstajn.githubcommitviewer;
 
+import android.app.Activity;
 import android.content.Context;
 import android.widget.Toast;
 
@@ -12,8 +13,10 @@ import java.text.ParseException;
 import java.util.Date;
 
 public class Util {
-    public static void makeToast(String msg, Context context){
-        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+    public static void makeToast(String msg, Activity activity){
+        activity.runOnUiThread(() -> {
+            Toast.makeText(activity.getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+        });
     }
 
     public static String shrinkString(String string, int maxChars){

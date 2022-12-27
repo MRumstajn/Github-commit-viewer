@@ -11,6 +11,7 @@ import android.widget.Button;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mauricio.githubcommitviewer.R;
+
 import rumstajn.githubcommitviewer.Util;
 import rumstajn.githubcommitviewer.commit_details.CommitDetailsActivity;
 import rumstajn.githubcommitviewer.model.api_response.commit.CommitObject;
@@ -44,7 +45,7 @@ public class CommitListActivity extends AppCompatActivity {
             commitObjects = mapper.readValue(rawCommits, CommitObject[].class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            Util.makeToast("Failed to load commit data", getApplicationContext());
+            Util.makeToast("Failed to load commit data", this);
             finish();
         }
         if (commitObjects.length > 0) {
@@ -52,10 +53,10 @@ public class CommitListActivity extends AppCompatActivity {
         }
     }
 
-    private void initComponents(){
+    private void initComponents() {
         commitListAdapter = new CommitListAdapter();
         commitListAdapter.setItemClickListener(position -> {
-                startDetailsActivityFor(commitListAdapter.getCommitObjetAt(position));
+            startDetailsActivityFor(commitListAdapter.getCommitObjetAt(position));
         });
 
         commitList = findViewById(R.id.commits_recycler_view);
@@ -65,15 +66,15 @@ public class CommitListActivity extends AppCompatActivity {
         backButton.setOnClickListener((view) -> finish());
     }
 
-    private void loadCommits(List<CommitObject> commitObjs){
+    private void loadCommits(List<CommitObject> commitObjs) {
         if (commitObjs.size() > 0) {
             commitListAdapter.setCommitObjects(commitObjs);
         } else {
-            Util.makeToast("No commits in this repository", getApplicationContext());
+            Util.makeToast("No commits in this repository", this);
         }
     }
 
-    private void startDetailsActivityFor(CommitObject commitObject){
+    private void startDetailsActivityFor(CommitObject commitObject) {
         try {
             Intent intent = new Intent(this, CommitDetailsActivity.class);
             intent.putExtra("commit_obj", mapper.writeValueAsString(commitObject));
@@ -81,7 +82,7 @@ public class CommitListActivity extends AppCompatActivity {
             startActivity(intent);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            Util.makeToast("Could not show details for that commit", getApplicationContext());
+            Util.makeToast("Could not show details for that commit", this);
         }
     }
 }

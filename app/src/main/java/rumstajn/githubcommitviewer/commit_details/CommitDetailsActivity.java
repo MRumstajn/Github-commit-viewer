@@ -71,7 +71,7 @@ public class CommitDetailsActivity extends AppCompatActivity
                     intent.getStringExtra("commit_obj"), CommitObject.class);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
-            Util.makeToast("Could not display details for this commit", getApplicationContext());
+            Util.makeToast("Could not display details for this commit", this);
             exitActivity();
             return;
         }
@@ -153,8 +153,8 @@ public class CommitDetailsActivity extends AppCompatActivity
         loadNextTreeEntry();
     }
 
-    private void loadNextTreeEntry(){
-        if (treeEntryQueue.size() > 0 && loadingTree){
+    private void loadNextTreeEntry() {
+        if (treeEntryQueue.size() > 0 && loadingTree) {
             TreeEntry entry = treeEntryQueue.remove(0);
             if (entry.getType().equals(TreeEntryType.BLOB.getName())) {
                 loadBlob(entry);
@@ -170,9 +170,7 @@ public class CommitDetailsActivity extends AppCompatActivity
         if (e instanceof RateLimitExceededException) {
             displayRateLimitErrorMsg((RateLimitExceededException) e);
         }
-        runOnUiThread(() -> {
-            Util.makeToast("Failed to fetch files", getApplicationContext());
-        });
+        Util.makeToast("Failed to fetch files", this);
     }
 
     @Override
@@ -195,7 +193,7 @@ public class CommitDetailsActivity extends AppCompatActivity
         }
         if (content == null) {
             Util.makeToast("Encountered an unsupported file encoding \""
-                    + blobObject.getEncoding() + "\"", getApplicationContext());
+                    + blobObject.getEncoding() + "\"", this);
             return;
         }
 
@@ -216,20 +214,16 @@ public class CommitDetailsActivity extends AppCompatActivity
         if (e instanceof RateLimitExceededException) {
             displayRateLimitErrorMsg((RateLimitExceededException) e);
         } else {
-            runOnUiThread(() -> {
-                Util.makeToast("Failed to fetch some files", getApplicationContext());
-            });
+            Util.makeToast("Failed to fetch some files", this);
         }
 
     }
 
     private void displayRateLimitErrorMsg(RateLimitExceededException exception) {
-        runOnUiThread(() -> {
-            long minutes = exception.getMinutesRemaining();
-            String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";
-            Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
-                    " or use an access token if you " +
-                    "haven't supplied one", getApplicationContext());
-        });
+        long minutes = exception.getMinutesRemaining();
+        String timeUnit = exception.getMinutesRemaining() < 60 ? minutes + " minutes" : "1 hour";
+        Util.makeToast("Rate limit exceeded, please wait " + timeUnit +
+                " or use an access token if you " +
+                "haven't supplied one", this);
     }
 }
