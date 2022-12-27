@@ -5,6 +5,7 @@
     <string name="repo_lookup_button">Fetch</string>
     <string name="back_button_description">go back to previous activity</string>
     <string name="text_view_placeholder">placeholder</string>
+    <string name="loading">Loading…</string>
     <string name="author_label">Author:</string>
     <string name="date_label">Date:</string>
     <string name="message_label">Message:</string>

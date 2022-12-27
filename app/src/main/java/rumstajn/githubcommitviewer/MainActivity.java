@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements IFetchCommitTaskL
                 FetchCommitsTask fetchTask = new FetchCommitsTask(url, accessToken);
                 fetchTask.setListener(this);
                 TaskManager.getInstance().runTaskLater(fetchTask);
+                runOnUiThread(() -> Util.makeToast("Fetching...", getApplicationContext()));
             } else {
                 Util.makeToast("Repository name and owner fields are required", getApplicationContext());
             }
